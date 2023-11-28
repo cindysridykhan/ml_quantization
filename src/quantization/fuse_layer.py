@@ -12,6 +12,7 @@ def fuse_batchnorm_conv(conv: nn.Conv2d, batchnorm: nn.BatchNorm2d) -> nn.Conv2d
     bn_gamma = batchnorm.weight.data
  
     conv.weight.data = conv.weight.data * (bn_gamma / bn_std).reshape(bn_redim)
-    conv.bias.data = conv.bias.data + batchnorm.bias.data - bn_mean * bn_gamma / bn_std
+    conv_bias = conv.bias.data if conv.bias is not None else 0
+    conv.bias = nn.Parameter(conv_bias + batchnorm.bias.data - bn_mean * bn_gamma / bn_std)
 
     return conv
